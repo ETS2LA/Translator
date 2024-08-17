@@ -1,6 +1,5 @@
 fastapi
 webview
-json
 socket
 uvicorn
 pydantic
