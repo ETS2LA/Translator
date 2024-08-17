@@ -9,6 +9,7 @@ import socket
 import threading
 import uvicorn
 import time
+import sys
 import os
 
 class LanguageData(BaseModel):
@@ -230,11 +231,18 @@ async def minimize_window():
     window.minimize_window()
     return {"status": "ok"}
 
+def ForceExit():
+    time.sleep(1) # This allows time for the web requests to finish before exiting
+    os.system("taskkill /F /IM python.exe > nul 2>&1")
+
 @app.post("/window/exit")
 async def exit_window():
     print("Exiting...")
-    import sys
-    sys.exit()
+    window.destroy_window() # Destroy the window
+    os.system("taskkill /F /IM node.exe > nul 2>&1") # Kill the node process
+    thread = threading.Thread(target=ForceExit) # Start in a thread so the request can finish before exiting
+    thread.start()
+    return {"status": "ok"}
 
 def startBackend():
     IP, frontend_url, webserver_url = GetWebData()

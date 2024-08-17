@@ -36,6 +36,13 @@ def minimize_window():
     queue.task_done()
     return value
 
+def destroy_window():
+    queue.put({"type": "destroy"})
+    queue.join() # Wait for the queue to be processed
+    value = queue.get()
+    queue.task_done()
+    return value
+
 def start_webpage(queue: JoinableQueue):
     global webview_window
     
@@ -57,6 +64,10 @@ def start_webpage(queue: JoinableQueue):
                     queue.task_done()
                     queue.put(True)
                     
+                if data["type"] == "destroy":
+                    window.destroy()
+                    queue.task_done()
+                    queue.put(True)
             except:
                 pass
     
