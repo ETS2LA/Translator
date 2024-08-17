@@ -1,7 +1,6 @@
 fastapi
-webview
+pywebview
 uvicorn
 pydantic
-colorsys
 mss
 pywin32
