@@ -1,3 +1,4 @@
+import variables
 import colorsys  
 import time
 import mss
@@ -41,7 +42,7 @@ def check_valid_window_position(window_x, window_y):
 def get_theme():
     try:
         theme = "dark"
-        with open(f"{os.path.dirname(os.path.dirname(__file__))}src\\styles\\globals.css", "r") as file:
+        with open(f"{variables.ROOT_DIR}src\\styles\\globals.css", "r") as file:
             content = file.read().split("\n")
             for i, line in enumerate(content):
                 if i > 0:
@@ -63,6 +64,7 @@ def get_theme():
 def set_window_icon(image_path):
     hwnd = win32gui.FindWindow(None, f'ETS2LA Translation Dashboard - ETS2LA Team © 2024')
     icon_flags = win32con.LR_LOADFROMFILE | win32con.LR_DEFAULTSIZE
+
     hicon = win32gui.LoadImage(None, image_path, win32con.IMAGE_ICON, 0, 0, icon_flags)
 
     win32gui.SendMessage(hwnd, win32con.WM_SETICON, win32con.ICON_SMALL, hicon)
@@ -81,7 +83,7 @@ def ColorTitleBar(theme:str="dark"):
         time.sleep(0.01)
         hwnd = win32gui.FindWindow(None, f'ETS2LA Translation Dashboard - ETS2LA Team © 2024')
         returnCode = windll.dwmapi.DwmSetWindowAttribute(hwnd, 35, byref(c_int(colors[theme])), sizeof(c_int))
-        set_window_icon('backend/favicon.ico')
+        set_window_icon(f"{variables.BAKCNED_DIR}favicon.ico")
         if time.time() - sinceStart > 5:
             break
 

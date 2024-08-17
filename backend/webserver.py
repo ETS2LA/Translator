@@ -1,4 +1,5 @@
 from fastapi.middleware.cors import CORSMiddleware
+import variables
 import window
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -23,7 +24,7 @@ class TranslationData(BaseModel):
 GITHUB_TRANSLATIONS_FOLDER = "Translations"
 KEYS_JSON = f"{GITHUB_TRANSLATIONS_FOLDER}/keys.json"
 COMMENTS_JSON = f"{GITHUB_TRANSLATIONS_FOLDER}/comments.json"
-LOCAL_TRANSLATIONS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), "translations")
+LOCAL_TRANSLATIONS_FOLDER = os.path.join(variables.RUN_DIR, "translations")
 LAST_UPDATE_FILE = os.path.join(LOCAL_TRANSLATIONS_FOLDER, "last_update.txt")
 EXCLUDED_TRANSLATION_FILES = [f"{GITHUB_TRANSLATIONS_FOLDER}/keys.json", 
                               f"{GITHUB_TRANSLATIONS_FOLDER}/comments.json"]

@@ -1,6 +1,7 @@
 from webpage_utils import ColorTitleBar, CheckIfWindowStillOpen, get_screen_dimensions, check_valid_window_position, get_theme, window_position, html
 from multiprocessing import JoinableQueue
 import multiprocessing  
+import variables
 import logging
 import webview
 import time
@@ -10,7 +11,6 @@ if os.name == 'nt':
     import win32gui
 
 DEBUG_MODE = False
-FRONTEND_PORT = 3000
 window_witdth, window_height = 1300, 800
 
 queue:JoinableQueue = JoinableQueue()
@@ -41,7 +41,7 @@ def start_webpage(queue: JoinableQueue):
     
     def load_website(window:webview.Window):
         time.sleep(3)
-        window.load_url('http://localhost:' + str(FRONTEND_PORT))
+        window.load_url('http://localhost:' + str(variables.FRONTEND_PORT))
         while True:
             time.sleep(0.01)
             try:
@@ -88,7 +88,7 @@ def start_webpage(queue: JoinableQueue):
         window,
         private_mode=False, # Save cookies, local storage and cache
         debug=DEBUG_MODE, # Show developer tools
-        storage_path=f"{os.path.dirname(__file__)}cache"
+        storage_path=f"{variables.ROOT_DIR}cache"
     )
 
 def run():
@@ -96,4 +96,4 @@ def run():
     p.start()
     if os.name == 'nt':
         ColorTitleBar()
-        print(f"Webpage URL: http://localhost:{FRONTEND_PORT}")
+        print(f"Webpage URL: http://localhost:{variables.FRONTEND_PORT}")
