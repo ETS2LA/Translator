@@ -1,6 +1,5 @@
 fastapi
 webview
-socket
 uvicorn
 pydantic
 colorsys
