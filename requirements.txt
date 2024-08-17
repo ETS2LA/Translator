@@ -1,0 +1,9 @@
+fastapi
+webview
+json
+socket
+uvicorn
+pydantic
+colorsys
+mss
+pywin32
