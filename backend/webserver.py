@@ -12,6 +12,16 @@ import time
 import sys
 import os
 
+RED = '\033[91m'
+CLEAR = '\033[0m'
+
+try:
+    from pypresence import Presence
+    use_discord_rpc = True
+except:
+    print(f"{RED}Discord RPC is not installed. Install it with requirements.bat{CLEAR}")
+    use_discord_rpc = False
+
 class LanguageData(BaseModel):
     name: str
     name_en: str
@@ -30,6 +40,83 @@ LAST_UPDATE_FILE = os.path.join(LOCAL_TRANSLATIONS_FOLDER, "last_update.txt")
 EXCLUDED_TRANSLATION_FILES = [f"{GITHUB_TRANSLATIONS_FOLDER}/keys.json", 
                               f"{GITHUB_TRANSLATIONS_FOLDER}/comments.json"]
 UPDATE_JSON = [True, 15, 2] # [enabled, cooldown, check_every_x_minutes]
+RPC_UPDATE_INTERVAL = 5
+last_rpc_update = 0
+
+class RPCStats(): # Sorta kinda like useState because globals wont work right
+    def __init__(self):
+        self.current_language = None
+        self.status = "Initializing"
+
+    def UpdateLanguage(self, language):
+        self.current_language = language
+    
+    def UpdateStatus(self, status):
+        self.status = status
+
+    def GetLanguage(self):
+        return self.current_language
+
+    def GetStatus(self):
+        return self.status
+    
+rpc_stats = RPCStats()
+
+def InitializeDiscordRPC():
+    global RPC, rpc_start
+    # Connect to Discord application
+    app_id = "1274736801374015628"
+    RPC = Presence(app_id)
+    RPC.connect()
+    
+    rpc_start = int(time.time())
+    RPC.update(
+        state="ETS2LA Translation | Initializing...",
+        large_image="la",
+        large_text="ETS2 Lane Assist Translation",
+        buttons=[{"label": "ETS2LA Github", "url": "https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist"}],
+        start=rpc_start
+    )
+    print("Discord Rich Presence has been started!")
+
+def UpdateRPC(rpc_stats: RPCStats):
+    global RPC, last_rpc_update, rpc_start
+    last_status = None
+    last_language = None
+    while True:
+        if time.time() - last_rpc_update >= RPC_UPDATE_INTERVAL:
+            status = rpc_stats.GetStatus()
+            current_language = rpc_stats.GetLanguage()
+            if status != last_status or current_language != last_language:
+                if status == "Translating":
+                    print(f"Updating Discord Rich Presence... (Translating: {current_language})")
+                else:
+                    print(f"Updating Discord Rich Presence... ({status})")
+            if status == "Initializing":
+                RPC.update(
+                    details="ETS2LA Translation | Initializing...",
+                    large_image="la",
+                    large_text="ETS2 Lane Assist Translation",
+                    buttons=[{"label": "ETS2LA Github", "url": "https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist"}],
+                )
+            if status == "Translating":
+                RPC.update(
+                    details=f"ETS2LA Translation | Translating",
+                    state=f"Language: {current_language}",
+                    large_image="la",
+                    large_text="ETS2 Lane Assist Translation",
+                    buttons=[{"label": "ETS2LA Github", "url": "https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist"}],
+                )
+            elif status == "Menu":
+                RPC.update(
+                    details="ETS2LA Translation | Menu",
+                    large_image="la",
+                    large_text="ETS2 Lane Assist Translation",
+                    buttons=[{"label": "ETS2LA Github", "url": "https://github.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist"}],
+                )
+            last_status = status
+            last_language = current_language
+            last_rpc_update = time.time()
 
 def GetGithubRawURL(file_path):
     return f"https://raw.githubusercontent.com/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist/rewrite/{file_path}"
@@ -105,6 +192,7 @@ def UpdateLanguageJSON(force=False, custom_time=0):
 @app.get("/")
 async def root():
     IP, _, webserver_url = GetWebData()
+    rpc_stats.UpdateStatus("Menu")
     return {"status": "ok", "url": webserver_url, "ip": IP} 
 
 @app.get("/get_languages")
@@ -128,6 +216,8 @@ async def get_languages():
 
 @app.get("/translation_data/{language}")
 async def get_translation_data(language : str):
+    rpc_stats.UpdateStatus("Translating")
+    rpc_stats.UpdateLanguage(language)
     if not os.path.exists(LAST_UPDATE_FILE):
         UpdateLanguageJSON()
     
@@ -254,9 +344,6 @@ def startFrontend():
     window.run()
     os.system(f"npm run dev")
 
-backend_thread = threading.Thread(target=startBackend).start()
-frontend_thread = threading.Thread(target=startFrontend).start()
-
 def UpdateTranslationData():
     while True:
         UpdateLanguageJSON() # It will only update if the language JSON file is older than UPDATE_JSON[1]
@@ -265,4 +352,11 @@ def UpdateTranslationData():
         else:
             break # If disabled, only update at startup, and then break
 
-threading.Thread(target=UpdateTranslationData).start()
+if __name__ == "__main__":
+    backend_thread = threading.Thread(target=startBackend).start()
+    frontend_thread = threading.Thread(target=startFrontend).start()
+    translation_update_thread = threading.Thread(target=UpdateTranslationData).start()
+    if use_discord_rpc:
+        InitializeDiscordRPC()
+        rpc_thread = threading.Thread(target=UpdateRPC, args=(rpc_stats,))
+        rpc_thread.start()
