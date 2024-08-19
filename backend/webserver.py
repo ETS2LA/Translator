@@ -274,6 +274,11 @@ async def get_translation_data(language : str):
         print(f"Failed to get translation data. Keys: {keys_json_data.status_code}, Comments: {comments_json_data.status_code}")
         return {"status": "error", "message": f"Failed to get translation data. Keys: {keys_json_data.status_code}, Comments: {comments_json_data.status_code}"}
 
+@app.get("/update_translations")
+async def update_translations():
+    UpdateLanguageJSON(force=True)
+    return {"status": "ok"}
+
 @app.post("/new_language")
 async def new_language(language_data: LanguageData):
     try:

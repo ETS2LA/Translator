@@ -120,8 +120,8 @@ export async function SaveTranslationData(data_url: string, language_data: {name
 }
 
 export async function UpdateTranslationData(webserver_url : string) {
-  let reponse = await fetch(webserver_url + "/update", {
-    method: 'POST'
+  let reponse = await fetch(webserver_url, {
+    method: 'GET'
   });
 
   if (!reponse.ok) {

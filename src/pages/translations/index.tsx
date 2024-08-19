@@ -229,7 +229,8 @@ export default function TranslationHome() {
             new Promise<void>(async (resolve, reject) => {
                 try {
                     setUpdatingTranslationData(true);
-                    await UpdateTranslationData(webserver_url);
+                    let update_url = webserver_url + "/update_translations/";
+                    await UpdateTranslationData(update_url);
                     setTimeout(() => {
                         resolve();
                     }, 1000);
