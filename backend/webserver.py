@@ -155,18 +155,21 @@ def UpdateLanguageJSON(force=False, custom_time=0):
         with open(LAST_UPDATE_FILE, "w") as f:
             f.close()
     else:
-        with open(LAST_UPDATE_FILE, "r") as f:
-            last_updated = float(f.read())
-            if custom_time == 0:
-                cooldown_time = UPDATE_JSON[1] * 60
-            else:
-                cooldown_time = custom_time * 60
+        try:
+            with open(LAST_UPDATE_FILE, "r") as f:
+                last_updated = float(f.read())
+                if custom_time == 0:
+                    cooldown_time = UPDATE_JSON[1] * 60
+                else:
+                    cooldown_time = custom_time * 60
 
-            if last_updated and time.time() - last_updated < cooldown_time:
-                if not force:
-                    print(f"Time since last update is less than {int(cooldown_time/60)} minutes. Skipping...")
-                    return
-                print(f"Time since last update is less than {int(cooldown_time/60)} minutes. However, force is enabled. Continuing...")
+                if last_updated and time.time() - last_updated < cooldown_time:
+                    if not force:
+                        print(f"Time since last update is less than {int(cooldown_time/60)} minutes. Skipping...")
+                        return
+                    print(f"Time since last update is less than {int(cooldown_time/60)} minutes. However, force is enabled. Continuing...")
+        except:
+            pass
 
     api_request = requests.get("https://api.github.com/repos/ETS2LA/Euro-Truck-Simulator-2-Lane-Assist/git/trees/rewrite?recursive=1")
     if api_request.status_code == 200:
