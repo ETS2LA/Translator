@@ -16,7 +16,7 @@ RED = '\033[91m'
 CLEAR = '\033[0m'
 
 try:
-    from pypresence import Presence
+    from pypresence import Presence, exceptions
     use_discord_rpc = True
 except:
     print(f"{RED}Discord RPC is not installed. Install it with requirements.bat{CLEAR}")
@@ -67,7 +67,10 @@ def InitializeDiscordRPC():
     # Connect to Discord application
     app_id = "1274736801374015628"
     RPC = Presence(app_id)
-    RPC.connect()
+    try:
+        RPC.connect()
+    except exceptions.DiscordNotFound:
+        print("Discord is either not installed or not running. Presence will not be updated.")
     
     rpc_start = int(time.time())
     RPC.update(
