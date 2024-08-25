@@ -69,10 +69,18 @@ export async function CreateNewLanguage(data_url: string, language_data: {name: 
   return true;
 }
 
-export async function GetTranslationData(data_url: string) {
+export async function GetTranslationData(data_url: string, language: string) {
   let translation_data = null;
   try {
-    let reponse = await fetch(data_url);
+    let reponse = await fetch(data_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        language: language
+      })
+    });
     if (!reponse.ok) {
       throw new Error("Response was not ok to URL: " + data_url + " (Response Status: " + reponse.status + ")");
       return null;

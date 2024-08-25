@@ -32,6 +32,9 @@ class TranslationData(BaseModel):
     key_data: list[str]
     translation_data: list[str]
 
+class LanguageDataRequest(BaseModel):
+    language : str
+
 GITHUB_TRANSLATIONS_FOLDER = "Translations"
 KEYS_JSON = f"{GITHUB_TRANSLATIONS_FOLDER}/keys.json"
 COMMENTS_JSON = f"{GITHUB_TRANSLATIONS_FOLDER}/comments.json"
@@ -220,10 +223,12 @@ async def get_languages():
 
     return {"status": "ok", "data": language_data}
 
-@app.get("/translation_data/{language}")
-async def get_translation_data(language : str):
+@app.post("/translation_data")
+async def get_translation_data(data : LanguageDataRequest):
+    language = data.language
     rpc_stats.UpdateStatus("Translating")
     rpc_stats.UpdateLanguage(language)
+    
     if not os.path.exists(LAST_UPDATE_FILE):
         UpdateLanguageJSON()
     

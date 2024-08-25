@@ -58,9 +58,9 @@ export default function TranslationHome() {
         toast.promise(
             new Promise<void>(async (resolve, reject) => {
                 try {
-                    translation_url = webserver_url + "/translation_data/" + language;
+                    translation_url = webserver_url + "/translation_data"
                     console.log("Getting translation data from " + translation_url);
-                    const data = await GetTranslationData(translation_url);
+                    const data = await GetTranslationData(translation_url, language);
                     await ParseTranslationData(data);
                     setTimeout(() => {
                         setLoadingTranslationData(false);
@@ -101,6 +101,7 @@ export default function TranslationHome() {
 
             translations.push({key: key, comment: comment, en_value: en_value, translation: translation});
         }
+        console.log(translations);
         setTranslationData(translations);
     }
 
@@ -208,7 +209,7 @@ export default function TranslationHome() {
                     setTimeout(() => {
                         setSavingTranslationData(false);
                         resolve();
-                        // push("/")
+                        push("/")
                     }, 1000)
                 } catch (error) {
                     setSavingTranslationData(false);
