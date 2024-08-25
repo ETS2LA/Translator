@@ -33,6 +33,7 @@ export default function TranslationHome() {
     const [selected_lannguage_index, setSelectedLanguageIndex] = useState(-1);
     const [language_data, setLanguageData] = useState<any[]>([]);
     const [language, setLanguage] = useState("Select a language");
+    const [untranslated_amount, setUntranslatedAmount] = useState(0);
     
     const [new_language_iso_code, setNewLanguageIsoCode] = useState("");
     const [new_language_name, setNewLanguageName] = useState("");
@@ -87,7 +88,6 @@ export default function TranslationHome() {
         let values = data.values;
         let en_values = data.en_values
         let translations : any[] = [];
-        let new_translations : any[] = [];
 
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
@@ -96,6 +96,7 @@ export default function TranslationHome() {
 
             if (values[i] === null) { // Make sure the key doesnt already have a translation
                 values[i] = "";
+                setUntranslatedAmount(untranslated_amount + 1);
             }
             let translation = values[i];
 
@@ -383,7 +384,7 @@ export default function TranslationHome() {
                         </AlertDialog>
                         <Separator orientation="horizontal" className="w-full bg-white" />
                         <div className="flex flex-col">
-                            {translationData && translationData.length > 0 ? (
+                            {translationData && translationData.length > 0 && untranslated_amount > 0 ? (
                                 translationData.map((item, index) =>
                                     item.translation === "" ? (
                                         <div key={index}>
@@ -417,8 +418,17 @@ export default function TranslationHome() {
                 <ResizablePanel defaultSize={70}>
                     {selected_lannguage_index === -1 ? (
                         <div className="flex flex-col space-y-2 h-full items-center justify-center text-center">
-                            <h1 className="text-2xl font-bold">Select Text to Translate</h1>
-                            <p className="text-zinc-500">Select a key on the left sidebar to translate.</p>
+                            {translationData && translationData.length > 0 && untranslated_amount > 0 ? (
+                                <div>
+                                    <h1 className="text-2xl font-bold">Select Text to Translate</h1>
+                                    <p className="text-zinc-500">Select a key on the left sidebar to translate.</p>
+                                </div>
+                            ) : (
+                                <div>
+                                    <h1 className="text-2xl font-bold">You're Up To Date!</h1>
+                                    <p className="text-zinc-500">All test for this language has been translated.</p>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="flex flex-col space-y-8 h-full items-center mt-4">
